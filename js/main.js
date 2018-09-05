@@ -1,4 +1,5 @@
-requirejs(['jquery', 'modules/views', 'modules/config'], function ($, views, config) {
+requirejs(['jquery', 'modules/views', 'modules/config', 'testing'],
+    function ($, views, config, testing) {
 
 //
 // プラグイン側から以下のような ActXiv オブジェクトとしてデータが提供される
@@ -27,9 +28,10 @@ requirejs(['jquery', 'modules/views', 'modules/config'], function ($, views, con
         activeView: 'dps',
         bodyDefine: views,
         config: config,
-        fadeOut: 30,
-        heartBeatWatcher : 0,
-        useHTMLEncounterDefine : true
+        fadeOutTime: 300,
+        fadeOutOpacity: 0.5,
+        heartBeatWatcher: 0,
+        useHTMLEncounterDefine: true
     };
 
 // エンカウント情報の定義
@@ -48,16 +50,27 @@ requirejs(['jquery', 'modules/views', 'modules/config'], function ($, views, con
     }
 
     function graphRendering(table) {
-        $("tr:eq(0) > td.graphCell", table).each(function () {
-            var max = 0;
-            $("tr > td:nth-child(" + ($("tr:eq(0) td", table).index($(this)) + 1) + ")", table).each(function () {
-                max = (max < parseInt($(this).text().replace(/[^\d]/g, ""))) ? parseInt($(this).text().replace(/[^\d]/g, "")) : max;
+        $("tr:eq(0) > td.graphCell", table)
+            .each(function () {
+                var max = 0;
+
+                $("tr > td:nth-child(" + ($("tr:eq(0) td", table).index($(this)) + 1) + ")", table)
+                    .each(function () {
+                        max = (max < parseInt($(this).text().replace(/[^\d]/g, ""))) ?
+                            parseInt($(this).text().replace(/[^\d]/g, "")) :
+                            max;
+                    });
+
+                $("tr > td:nth-child(" + ($("tr:eq(0) td", table)
+                    .index($(this)) + 1) + ")", table)
+                    .each(function () {
+                        p = (max == 0) ?
+                            "0%" :
+                            (parseInt($(this).text().replace(/[^\d]/g, "")) / max * 100) + "%";
+
+                        $(this).css("background-size", p + " 100%, 100% 100%");
+                    });
             });
-            $("tr > td:nth-child(" + ($("tr:eq(0) td", table).index($(this)) + 1) + ")", table).each(function () {
-                p = (max == 0) ? "0%" : (parseInt($(this).text().replace(/[^\d]/g, "")) / max * 100) + "%";
-                $(this).css("background-size", p + " 100%, 100% 100%");
-            });
-        });
     }
 
 
@@ -79,12 +92,11 @@ requirejs(['jquery', 'modules/views', 'modules/config'], function ($, views, con
         }
     });
 
-    /*Mods by Anoz Dax*/
-
+    testing.start();
 
     function encounterHeartbeat() {
-
-        var targetElement = $('#combatantTable');
+        var targetElement = $('#combatantTable')
+        otherElements = $('#toggle, #encounter');
 
         targetElement.css('display') === 'block' || toggleChartVisibility('block');
 
@@ -94,10 +106,19 @@ requirejs(['jquery', 'modules/views', 'modules/config'], function ($, views, con
             targetElement.fadeOut('slow', function () {
                 toggleChartVisibility('none');
             });
-        }, trackerState.fadeOut * 1000);
+        }, trackerState.fadeOutTime * 1000);
 
         function toggleChartVisibility(displayType) {
+            var opacity;
+
+            if (displayType === 'block') {
+                opacity = 1;
+            } else {
+                opacity = trackerState.fadeOutOpacity;
+            }
+
             targetElement.css('display', displayType);
+            otherElements.css('opacity', opacity);
         }
     }
 
@@ -117,8 +138,6 @@ requirejs(['jquery', 'modules/views', 'modules/config'], function ($, views, con
         updateCombatantListHeader();
         updateCombatantList(trackerState.dataStore);
     });
-
-    /*End mods by Anoz Dax*/
 
 // 表示要素の更新
     function update(data) {
@@ -163,8 +182,8 @@ requirejs(['jquery', 'modules/views', 'modules/config'], function ($, views, con
         var tableHeader = document.createElement("thead");
         tableHeader.id = "combatantTableHeader";
         var headerRow = tableHeader.insertRow();
-        var headerConfig = trackerState.bodyDefine[trackerState.activeView].headerConfig;        
-        
+        var headerConfig = trackerState.bodyDefine[trackerState.activeView].headerConfig;
+
         for (var i = 0; i < headerConfig.length; i++) {
             var cell = document.createElement("th");
             // テキスト設定
@@ -190,18 +209,45 @@ requirejs(['jquery', 'modules/views', 'modules/config'], function ($, views, con
         table.tHead = tableHeader;
     }
 
+    function sortCombatants(data, orderBy) {
+        var output = {},
+            sortArray = [],
+            combatantName, combatant, value;
+
+        for (combatantName in data) {
+            combatant = data[combatantName];
+            sortArray[combatant[orderBy]] = combatantName;
+        }
+
+        Object.keys(sortArray)
+            .sort(function (a, b) {
+                return parseInt(b) - parseInt(a);
+            });
+
+        for (value in sortArray) {
+            combatantName = sortArray[value];
+            output[combatantName] = data[combatantName];
+        }
+
+//update data.sortCombatants
+        return output;
+    }
+
 // プレイヤーリストを更新する
     function updateCombatantList(data) {
         // 要素取得＆作成
-        var table = document.getElementById('combatantTable');
-        var oldTableBody = table.tBodies.namedItem('combatantTableBody');
-        var newTableBody = document.createElement("tbody");
+        var table = document.getElementById('combatantTable'),
+            oldTableBody = table.tBodies.namedItem('combatantTableBody'),
+            newTableBody = document.createElement("tbody"),
+            sortedCombatants = sortCombatants(data.Combatant, trackerState.config[trackerState.activeView].topScoreProp);
+
         newTableBody.id = "combatantTableBody";
+
 
         // tbody の内容を作成
         var combatantIndex = 0;
-        for (var combatantName in data.Combatant) {
-            var combatant = data.Combatant[combatantName];
+        for (var combatantName in sortedCombatants) {
+            var combatant = sortedCombatants[combatantName];
             //ペットのジョブ画像読み込み用の設定
             if (combatantName.search("エオス") != -1) {
                 var combatantName = 'Eos';
@@ -266,7 +312,7 @@ requirejs(['jquery', 'modules/views', 'modules/config'], function ($, views, con
 
                 // エフェクト実行
                 if (typeof bodyDefinition[i].effect === 'function') {
-                    bodyDefinition[i].effect(cell, combatant, combatantIndex);
+                    bodyDefinition[i].effect(cell, combatant, combatantIndex, trackerState.activeView);
                 }
             }
             combatantIndex++;

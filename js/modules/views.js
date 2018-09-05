@@ -18,7 +18,7 @@ define(['./effects'], function(effects) {
                     {
                         html: "<img src='./img/colorbg/{JobOrName}.png' onerror='$(this).attr(\"src\", \"./img/error.png\");' style='width=60%;height:60%;' />",
                         align: "center",
-                        effect: effects.dpsBarEffect
+                        effect: effects.scoreBarEffect
                     },
                     {text: "{name}", width: "", align: "center", effect: effects.myCharacterEffect},
                     {text: "{encdps}", width: "", align: "center"},
@@ -45,7 +45,7 @@ define(['./effects'], function(effects) {
                     {
                         html: "<img src='./img/colorbg/{JobOrName}.png' onerror='$(this).attr(\"src\", \"./img/error.png\");' style='width=60%;height:60%;' />",
                         align: "center",
-                        effect: effects.dpsBarEffect
+                        effect: effects.scoreBarEffect
                     },
                     {text: "{name}", width: "", align: "center", effect: effects.myCharacterEffect},
                     {text: "{damagetaken}", width: "", align: "center"},
@@ -72,7 +72,7 @@ define(['./effects'], function(effects) {
                     {
                         html: "<img src='./img/colorbg/{JobOrName}.png' onerror='$(this).attr(\"src\", \"./img/error.png\");' style='width=60%;height:60%;' />",
                         align: "center",
-                        effect: effects.dpsBarEffect
+                        effect: effects.scoreBarEffect
                     },
                     {text: "{name}", width: "", align: "center", effect: effects.myCharacterEffect},
                     {text: "{enchps}", width: "", align: "center"},
