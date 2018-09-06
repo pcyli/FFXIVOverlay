@@ -28,8 +28,6 @@ requirejs(['jquery', 'modules/views', 'modules/config', 'testing'],
         activeView: 'dps',
         bodyDefine: views,
         config: config,
-        fadeOutTime: 300,
-        fadeOutOpacity: 0.5,
         heartBeatWatcher: 0,
         useHTMLEncounterDefine: true
     };
@@ -106,7 +104,7 @@ requirejs(['jquery', 'modules/views', 'modules/config', 'testing'],
             targetElement.fadeOut('slow', function () {
                 toggleChartVisibility('none');
             });
-        }, trackerState.fadeOutTime * 1000);
+        }, trackerState.config.fadeOutTime * 1000);
 
         function toggleChartVisibility(displayType) {
             var opacity;
@@ -114,7 +112,7 @@ requirejs(['jquery', 'modules/views', 'modules/config', 'testing'],
             if (displayType === 'block') {
                 opacity = 1;
             } else {
-                opacity = trackerState.fadeOutOpacity;
+                opacity = trackerState.config.fadeOutOpacity;
             }
 
             targetElement.css('display', displayType);
@@ -216,7 +214,7 @@ requirejs(['jquery', 'modules/views', 'modules/config', 'testing'],
 
         for (combatantName in data) {
             combatant = data[combatantName];
-            sortArray[combatant[orderBy]] = combatantName;
+            sortArray[parseInt(combatant[orderBy]) * 1] = combatantName;
         }
 
         Object.keys(sortArray)

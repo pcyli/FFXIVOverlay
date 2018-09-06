@@ -17,5 +17,7 @@ define({
     },
     default: {
         color: 'rgba(128,0,255,0.3)'
-    }
+    },
+    fadeOutTime: 300,
+    fadeOutOpacity: 0.5,
 });
