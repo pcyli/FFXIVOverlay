@@ -18,7 +18,7 @@ define(['./config', 'jquery'], function (config, $) {
         } else if (heal.indexOf(job) > -1) {
             jobClass = config.heal;
         } else {
-            jobClass = 'default';
+            jobClass = 'base';
         }
 
         if (index == 0 || typeof topScore == 'undefined') {

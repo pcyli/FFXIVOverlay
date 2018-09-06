@@ -90,7 +90,7 @@ requirejs(['jquery', 'modules/views', 'modules/config', 'testing'],
         }
     });
 
-    testing.start();
+    //testing.start();
 
     function encounterHeartbeat() {
         var targetElement = $('#combatantTable')
@@ -210,6 +210,7 @@ requirejs(['jquery', 'modules/views', 'modules/config', 'testing'],
     function sortCombatants(data, orderBy) {
         var output = {},
             sortArray = [],
+            keySort,
             combatantName, combatant, value;
 
         for (combatantName in data) {
@@ -217,13 +218,13 @@ requirejs(['jquery', 'modules/views', 'modules/config', 'testing'],
             sortArray[parseInt(combatant[orderBy]) * 1] = combatantName;
         }
 
-        Object.keys(sortArray)
+        keySort = Object.keys(sortArray)
             .sort(function (a, b) {
                 return parseInt(b) - parseInt(a);
             });
 
-        for (value in sortArray) {
-            combatantName = sortArray[value];
+        for (value in keySort) {
+            combatantName = sortArray[keySort[value]];
             output[combatantName] = data[combatantName];
         }
 

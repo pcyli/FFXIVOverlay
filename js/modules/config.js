@@ -15,9 +15,9 @@ define({
         color: 'rgba(107,240,86,0.3)',
         topScoreProp: 'enchps'
     },
-    default: {
+    base: {
         color: 'rgba(128,0,255,0.3)'
     },
-    fadeOutTime: 300,
-    fadeOutOpacity: 0.5,
+    fadeOutTime: 30,
+    fadeOutOpacity: 0.5
 });
