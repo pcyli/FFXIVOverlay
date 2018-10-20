@@ -1,5 +1,9 @@
-requirejs(['jquery', 'modules/views', 'modules/config', 'testing'],
-    function ($, views, config, testing) {
+requirejs(['jquery', 'modules/views', 'modules/config'
+//, 'testing'
+],
+    function ($, views, config
+	//, testing
+	) {
 
 //
 // プラグイン側から以下のような ActXiv オブジェクトとしてデータが提供される
@@ -28,6 +32,8 @@ requirejs(['jquery', 'modules/views', 'modules/config', 'testing'],
         activeView: 'dps',
         bodyDefine: views,
         config: config,
+        fadeOutTime: 25,
+        fadeOutOpacity: 0.5,
         heartBeatWatcher: 0,
         useHTMLEncounterDefine: true
     };
@@ -104,7 +110,7 @@ requirejs(['jquery', 'modules/views', 'modules/config', 'testing'],
             targetElement.fadeOut('slow', function () {
                 toggleChartVisibility('none');
             });
-        }, trackerState.config.fadeOutTime * 1000);
+        }, trackerState.fadeOutTime * 1000);
 
         function toggleChartVisibility(displayType) {
             var opacity;
@@ -112,7 +118,7 @@ requirejs(['jquery', 'modules/views', 'modules/config', 'testing'],
             if (displayType === 'block') {
                 opacity = 1;
             } else {
-                opacity = trackerState.config.fadeOutOpacity;
+                opacity = trackerState.fadeOutOpacity;
             }
 
             targetElement.css('display', displayType);
@@ -210,21 +216,20 @@ requirejs(['jquery', 'modules/views', 'modules/config', 'testing'],
     function sortCombatants(data, orderBy) {
         var output = {},
             sortArray = [],
-            keySort,
             combatantName, combatant, value;
 
         for (combatantName in data) {
             combatant = data[combatantName];
-            sortArray[parseInt(combatant[orderBy]) * 1] = combatantName;
+            sortArray[combatant[orderBy]] = combatantName;
         }
 
-        keySort = Object.keys(sortArray)
+        Object.keys(sortArray)
             .sort(function (a, b) {
                 return parseInt(b) - parseInt(a);
             });
 
-        for (value in keySort) {
-            combatantName = sortArray[keySort[value]];
+        for (value in sortArray) {
+            combatantName = sortArray[value];
             output[combatantName] = data[combatantName];
         }
 

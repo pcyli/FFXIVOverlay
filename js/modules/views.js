@@ -10,6 +10,7 @@ define(['./effects'], function(effects) {
                     {text: "DMG", width: "3.3em", align: "right"},
                     {text: "", width: "3em", align: "left"},
                     {text: "Crit", width: "2.5em", align: "center"},
+                    {text: "DHit", width: "2.5em", align: "center"},
                     {text: "Miss", width: "2.5em", align: "center"},
                     {text: "Best Hit", width: "7.5em", align: "center"}
                 ],
@@ -25,6 +26,7 @@ define(['./effects'], function(effects) {
                     {text: "{damage}", width: "", align: "right"},
                     {text: "({damage%})", width: "", align: "left"},
                     {text: "{crithit%}", width: "", align: "center"},
+                    {text: "{DirectHitPct}", width: "", align: "center"},
                     {text: "{misses}", width: "", align: "center", effect: effects.redTextEffect},
                     {text: "{maxhit}", width: "", align: "center"}
                 ]
@@ -62,10 +64,10 @@ define(['./effects'], function(effects) {
                     {text: "Name", width: "9em", align: "center"},
                     {text: "HPS", width: "4em", align: "center"},
                     {text: "Healed", width: "3.3em", align: "right"},
-                    {text: "", width: "3em", align: "left"},
+                    {text: "", width: "2em", align: "left"},
                     {text: "Crit", width: "2.5em", align: "center"},
-                    {text: "Miss", width: "2.5em", align: "center"},
-                    {text: "Best Heal", width: "7.5em", align: "center"}
+                    {text: "Best Heal", width: "7.5em", align: "center"},
+                    {text: "Best Shield", width: "7.5em", align: "center"}
                 ],
             charConfig:
                 [
