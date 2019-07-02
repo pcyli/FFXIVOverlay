@@ -64,7 +64,7 @@ define(['./effects'], function(effects) {
                     {text: "Name", width: "9em", align: "center"},
                     {text: "HPS", width: "4em", align: "center"},
                     {text: "Healed", width: "3.3em", align: "right"},
-                    {text: "", width: "3em", align: "left"},
+                    {text: "", width: "2em", align: "left"},
                     {text: "Crit", width: "2.5em", align: "center"},
                     {text: "Best Heal", width: "7.5em", align: "center"},
                     {text: "Best Shield", width: "7.5em", align: "center"}
