@@ -49,9 +49,24 @@ define(['./config', 'jquery'], function (config, $) {
         }
     }
 
+    function jobColorEffect(cell, combatant, index) {
+        $(cell).parents("tr").addClass(combatant["Job"]);
+    }
+
+    function insertCommaEffect(cell) {
+        cell.innerText = cell.innerText.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+    }
+
+    function graphEffect(cell) {
+        $(cell).addClass("graphCell");
+    }
+
     return {
         scoreBarEffect: scoreBarEffect,
         redTextEffect: redTextEffect,
-        myCharacterEffect: myCharacterEffect
+        myCharacterEffect: myCharacterEffect,
+        jobColorEffect: jobColorEffect,
+        insertCommaEffect, insertCommaEffect,
+        graphEffect, graphEffect
     };
 });

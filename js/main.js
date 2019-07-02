@@ -35,18 +35,6 @@ requirejs(['jquery', 'modules/views', 'modules/config', 'testing'],
 // エンカウント情報の定義
     var encounterDefine = "Time:<span class='enc'>{duration}</span> &nbsp;&nbsp;&nbsp;Total DPS:<span class='enc'>{dps}</span> &nbsp;&nbsp;&nbsp;Best Hit:<span class='enc'>{maxhit}</span>";
 
-    function jobColorEffect(cell, combatant, index) {
-        $(cell).parents("tr").addClass(combatant["Job"]);
-    }
-
-    function insertCommaEffect(cell) {
-        cell.innerText = cell.innerText.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
-    }
-
-    function graphEffect(cell) {
-        $(cell).addClass("graphCell");
-    }
-
     function graphRendering(table) {
         $("tr:eq(0) > td.graphCell", table)
             .each(function () {
