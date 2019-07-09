@@ -11,8 +11,8 @@ define(['./effects'], function(effects) {
                     {text: "", width: "3em", align: "left"},
                     {text: "Crit", width: "2.5em", align: "center"},
                     {text: "DHit", width: "2.5em", align: "center"},
-                    {text: "Miss", width: "2.5em", align: "center"},
-                    {text: "Best Hit", width: "7.5em", align: "center"}
+                    //{text: "Miss", width: "2.5em", align: "center"},
+                    {text: "Best Hit", width: "10em", align: "center"}
                 ],
             charConfig:
                 [
@@ -27,7 +27,7 @@ define(['./effects'], function(effects) {
                     {text: "({damage%})", width: "", align: "left"},
                     {text: "{crithit%}", width: "", align: "center"},
                     {text: "{DirectHitPct}", width: "", align: "center"},
-                    {text: "{misses}", width: "", align: "center", effect: effects.redTextEffect},
+                    //{text: "{misses}", width: "", align: "center", effect: effects.redTextEffect},
                     {text: "{maxhit}", width: "", align: "center"}
                 ]
         },

@@ -1,13 +1,6 @@
-requirejs(['jquery', 'modules/views', 'modules/config'
-//, 'testing'
-],
-    function ($, views, config
-	//, testing
-	) {
+requirejs(['jquery', 'modules/views', 'modules/config'],// 'testing'],
+    function ($, views, config) {
 
-//
-// プラグイン側から以下のような ActXiv オブジェクトとしてデータが提供される
-//
 // var ActXiv = {
 //	"Encounter": {...},
 //	"Combatant": {
@@ -17,15 +10,6 @@ requirejs(['jquery', 'modules/views', 'modules/config'
 //	}
 // };
 //
-// データの更新は 1 秒毎。
-//
-// プラグインから onOverlayDataUpdate イベントが発行されるので、それを受信することもできる
-// イベントハンドラの第一引数の detail プロパティ内に上記のオブジェクトが入る
-//
-
-//
-// 表示設定 (2)
-//
 
     var trackerState = {
         dataStore: {},
@@ -33,12 +17,11 @@ requirejs(['jquery', 'modules/views', 'modules/config'
         bodyDefine: views,
         config: config,
         fadeOutTime: 25,
-        fadeOutOpacity: 0.5,
+        fadeOutOpacity: 0.2,
         heartBeatWatcher: 0,
         useHTMLEncounterDefine: true
     };
 
-// エンカウント情報の定義
     var encounterDefine = "Time:<span class='enc'>{duration}</span> &nbsp;&nbsp;&nbsp;Total DPS:<span class='enc'>{dps}</span> &nbsp;&nbsp;&nbsp;Best Hit:<span class='enc'>{maxhit}</span>";
 
     function graphRendering(table) {
@@ -56,7 +39,7 @@ requirejs(['jquery', 'modules/views', 'modules/config'
                 $("tr > td:nth-child(" + ($("tr:eq(0) td", table)
                     .index($(this)) + 1) + ")", table)
                     .each(function () {
-                        p = (max == 0) ?
+                        var p = (max === 0) ?
                             "0%" :
                             (parseInt($(this).text().replace(/[^\d]/g, "")) / max * 100) + "%";
 
@@ -65,12 +48,7 @@ requirejs(['jquery', 'modules/views', 'modules/config'
             });
     }
 
-
-//
-// 以下表示用スクリプト
-//
-
-// onOverlayDataUpdate イベントを購読
+// onOverlayDataUpdate
     document.addEventListener("onOverlayDataUpdate", function (e) {
         update(e.detail);
         encounterHeartbeat();
@@ -84,10 +62,10 @@ requirejs(['jquery', 'modules/views', 'modules/config'
         }
     });
 
-    //testing.start();
+    $(document).trigger($.Event('initComplete'));
 
     function encounterHeartbeat() {
-        var targetElement = $('#combatantTable')
+        var targetElement = $('#combatantTable'),
         otherElements = $('#toggle, #encounter');
 
         targetElement.css('display') === 'block' || toggleChartVisibility('block');

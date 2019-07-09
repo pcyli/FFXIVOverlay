@@ -6,7 +6,7 @@ define(['./config', 'jquery'], function (config, $) {
             dps = config.dps.classes,
             heal = config.heal.classes,
             topScoreProp = config[type].topScoreProp,
-            jobClass, score, tableRow;
+            jobClass, score, percentScore, tableRow;
 
         // 色指定
         var job = combatant["Job"];
@@ -25,10 +25,13 @@ define(['./config', 'jquery'], function (config, $) {
             topScore = combatant[topScoreProp];
         }
         score = combatant[topScoreProp];
+        percentScore = (parseInt(score)/ parseInt(topScore)*100) || 0;
+
 
         tableRow = cell.parentNode;
-        tableRow.style.background = "-webkit-gradient(linear, left top,right top, color-stop(0.95," + jobClass.color + "), to(rgba(24,24,24,0.0)))";
-        tableRow.style.backgroundSize = (parseInt(score) * 100 / parseInt(topScore)) + "% 100%";
+        tableRow.style.background =  "-webkit-linear-gradient(left, " + jobClass.color+ " 0%," + jobClass.color + (percentScore-1) +"%,rgba(125,185,232,0) " + percentScore + "%)";
+            //"-webkit-gradient(linear, left top,right top, color-stop(0.95," + jobClass.color + "), to(rgba(24,24,24,0.0)))";
+        //tableRow.style.backgroundSize = (parseInt(score)/ parseInt(topScore)*100) + "% 100%";
         tableRow.style.backgroundAttachment = "fixed";
         tableRow.style.backgroundRepeat = "no-repeat";
     }
@@ -66,7 +69,7 @@ define(['./config', 'jquery'], function (config, $) {
         redTextEffect: redTextEffect,
         myCharacterEffect: myCharacterEffect,
         jobColorEffect: jobColorEffect,
-        insertCommaEffect, insertCommaEffect,
-        graphEffect, graphEffect
+        insertCommaEffect: insertCommaEffect,
+        graphEffect: graphEffect
     };
 });
