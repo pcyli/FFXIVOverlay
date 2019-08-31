@@ -1,4 +1,4 @@
-requirejs(['jquery', 'modules/views', 'modules/config'],// 'testing'],
+requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
     function ($, views, config) {
 
 // var ActXiv = {
@@ -63,6 +63,9 @@ requirejs(['jquery', 'modules/views', 'modules/config'],// 'testing'],
     });
 
     $(document).trigger($.Event('initComplete'));
+
+
+
 
     function encounterHeartbeat() {
         var targetElement = $('#combatantTable'),
@@ -181,23 +184,28 @@ requirejs(['jquery', 'modules/views', 'modules/config'],// 'testing'],
 
     function sortCombatants(data, orderBy) {
         var output = {},
-            sortArray = [],
+            sortObject = {},
+            sortedValues = [],
             combatantName, combatant, value;
 
         for (combatantName in data) {
             combatant = data[combatantName];
-            sortArray[combatant[orderBy]] = combatantName;
+            sortObject[combatant[orderBy]] = combatantName;
         }
 
-        Object.keys(sortArray)
+        sortedValues = Object.keys(sortObject)
             .sort(function (a, b) {
                 return parseInt(b) - parseInt(a);
             });
 
-        for (value in sortArray) {
+        sortedValues.map(e => {
+           output[sortObject[e]] = data[sortObject[e]];
+        });
+        /*
+        for (value in sortedValues) {
             combatantName = sortArray[value];
             output[combatantName] = data[combatantName];
-        }
+        }*/
 
 //update data.sortCombatants
         return output;

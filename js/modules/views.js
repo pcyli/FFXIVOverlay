@@ -37,10 +37,10 @@ define(['./effects'], function(effects) {
                     {text: "Job", width: "2em", align: "center"},
                     {text: "Name", width: "9em", align: "center"},
                     {text: "DmgTkn", width: "4em", align: "center"},
-                    {text: "BlockPct", width: "3.3em", align: "center"},
-                    {text: "ParryPct", width: "2.5em", align: "center"},
+                    {text: "Block%", width: "3.5em", align: "center"},
+                    {text: "Parry%", width: "3.5em", align: "center"},
                     {text: "Deaths", width: "2.5em", align: "center"},
-                    {text: "Best Hit", width: "7.5em", align: "center"}
+                    {text: "Best Hit", width: "8em", align: "center"}
                 ],
             charConfig:
                 [
@@ -62,12 +62,12 @@ define(['./effects'], function(effects) {
                 [
                     {text: "Job", width: "2em", align: "center"},
                     {text: "Name", width: "9em", align: "center"},
-                    {text: "HPS", width: "4em", align: "center"},
-                    {text: "Healed", width: "3.3em", align: "right"},
-                    {text: "", width: "2em", align: "left"},
+                    {text: "EHPS", width: "4em", align: "center"},
+                    {text: "Effective Heal", width: "4em", align: "right"},
+                    {text: "", width: "2.5em", align: "left"},
+                    {text: "OverHeal (%)", width: "5.5em", align: "center"},
                     {text: "Crit", width: "2.5em", align: "center"},
-                    {text: "Best Heal", width: "7.5em", align: "center"},
-                    {text: "Best Shield", width: "7.5em", align: "center"}
+                    {text: "Best Heal", width: "8.5em", align: "center"}
                 ],
             charConfig:
                 [
@@ -77,12 +77,24 @@ define(['./effects'], function(effects) {
                         effect: effects.scoreBarEffect
                     },
                     {text: "{name}", width: "", align: "center", effect: effects.myCharacterEffect},
-                    {text: "{enchps}", width: "", align: "center"},
-                    {text: "{healed}", width: "", align: "right"},
-                    {text: "({healed%})", width: "", align: "left"},
+                    {
+                        text: combatant => Math.floor(combatant.enchps * (1-parseInt(combatant.OverHealPct)/100)*10)/10,
+                        width: "",
+                        align: "center"
+                    },
+                    {
+                        text: combatant => Math.floor(combatant.healed * (1-parseInt(combatant.OverHealPct)/100)),
+                        width: "",
+                        align: "right"
+                    },
+                    {
+                        text: combatant => "(" + Math.floor(parseInt(combatant["healed%"]) * (1-parseInt(combatant.OverHealPct)/100)) + "%)",
+                        width: "",
+                        align: "left"
+                    },
+                    {text: "{OverHealPct}", width: "", align: "center", effect: effects.redTextEffect},
                     {text: "{critheal%}", width: "", align: "center"},
-                    {text: "{maxheal}", width: "", align: "center",},
-                    {text: "{maxhealward}", width: "", align: "center"}
+                    {text: "{maxheal}", width: "", align: "center"}
                 ]
         }
     };
