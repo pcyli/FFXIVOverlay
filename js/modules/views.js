@@ -1,24 +1,23 @@
-define(['./effects'], function(effects) {
+define(['./effects'], function (effects) {
 
     return {
-        dps: {
+        dps:  {
             headerConfig:
                 [
-                    {text: "Job", width: "2em", align: "center"},
-                    {text: "Name", width: "9em", align: "center"},
-                    {text: "DPS", width: "4em", align: "center"},
-                    {text: "DMG", width: "3.3em", align: "right"},
-                    {text: "", width: "3em", align: "left"},
-                    {text: "Crit", width: "2.5em", align: "center"},
-                    {text: "DHit", width: "2.5em", align: "center"},
-                    //{text: "Miss", width: "2.5em", align: "center"},
-                    {text: "Best Hit", width: "10em", align: "center"}
+                    {text: "Job", variableName: 'JobOrName', width: "2em", align: "center"},
+                    {text: "Name", variableName: 'name', width: "9em", align: "center"},
+                    {text: "DPS", variableName: 'encdps', width: "4em", align: "center"},
+                    {text: "DMG", variableName: 'damage', width: "3.3em", align: "right"},
+                    {text: "", variableName: '', width: "3em", align: "left"},
+                    {text: "Crit", variableName: 'crithit%', width: "2.5em", align: "center"},
+                    {text: "DHit", variableName: 'DirectHitPct', width: "2.5em", align: "center"},
+                    {text: "Best Hit", variableName: 'maxhit', width: "10em", align: "center"}
                 ],
             charConfig:
                 [
                     {
-                        html: "<img src='./img/colorbg/{JobOrName}.png' onerror='$(this).attr(\"src\", \"./img/error.png\");' style='width=60%;height:60%;' />",
-                        align: "center",
+                        html:   "<img src='./img/colorbg/{JobOrName}.png' onerror='$(this).attr(\"src\", \"./img/error.png\");' style='width=60%;height:60%;' />",
+                        align:  "center",
                         effect: effects.scoreBarEffect
                     },
                     {text: "{name}", width: "", align: "center", effect: effects.myCharacterEffect},
@@ -45,8 +44,8 @@ define(['./effects'], function(effects) {
             charConfig:
                 [
                     {
-                        html: "<img src='./img/colorbg/{JobOrName}.png' onerror='$(this).attr(\"src\", \"./img/error.png\");' style='width=60%;height:60%;' />",
-                        align: "center",
+                        html:   "<img src='./img/colorbg/{JobOrName}.png' onerror='$(this).attr(\"src\", \"./img/error.png\");' style='width=60%;height:60%;' />",
+                        align:  "center",
                         effect: effects.scoreBarEffect
                     },
                     {text: "{name}", width: "", align: "center", effect: effects.myCharacterEffect},
@@ -72,23 +71,23 @@ define(['./effects'], function(effects) {
             charConfig:
                 [
                     {
-                        html: "<img src='./img/colorbg/{JobOrName}.png' onerror='$(this).attr(\"src\", \"./img/error.png\");' style='width=60%;height:60%;' />",
-                        align: "center",
+                        html:   "<img src='./img/colorbg/{JobOrName}.png' onerror='$(this).attr(\"src\", \"./img/error.png\");' style='width=60%;height:60%;' />",
+                        align:  "center",
                         effect: effects.scoreBarEffect
                     },
                     {text: "{name}", width: "", align: "center", effect: effects.myCharacterEffect},
                     {
-                        text: combatant => Math.floor(combatant.enchps * (1-parseInt(combatant.OverHealPct)/100)*10)/10,
+                        text:  combatant => Math.floor(combatant.enchps * (1 - parseInt(combatant.OverHealPct) / 100) * 10) / 10,
                         width: "",
                         align: "center"
                     },
                     {
-                        text: combatant => Math.floor(combatant.healed * (1-parseInt(combatant.OverHealPct)/100)),
+                        text:  combatant => Math.floor(combatant.healed * (1 - parseInt(combatant.OverHealPct) / 100)),
                         width: "",
                         align: "right"
                     },
                     {
-                        text: combatant => "(" + Math.floor(parseInt(combatant["healed%"]) * (1-parseInt(combatant.OverHealPct)/100)) + "%)",
+                        text:  combatant => "(" + Math.floor(parseInt(combatant["healed%"]) * (1 - parseInt(combatant.OverHealPct) / 100)) + "%)",
                         width: "",
                         align: "left"
                     },
