@@ -1,4 +1,5 @@
-requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
+requirejs(['jquery', 'modules/views', 'modules/config' //],
+        , 'testing'],
     function ($, views, config) {
 
 // var ActXiv = {
@@ -13,16 +14,32 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
 
     var trackerState = {
         dataStore: {},
-        activeView: 'dps',
+        activeView: config.base.defaultView,
+        activeTopScoreProp: config[config.base.defaultView].topScoreProp,
         bodyDefine: views,
         config: config,
         fadeOutTime: 25,
         fadeOutOpacity: 0.2,
         heartBeatWatcher: 0,
+        encounterDefine: config.base.baselineText,
         useHTMLEncounterDefine: true
     };
 
-    var encounterDefine = "Time:<span class='enc'>{duration}</span> &nbsp;&nbsp;&nbsp;Total DPS:<span class='enc'>{dps}</span> &nbsp;&nbsp;&nbsp;Best Hit:<span class='enc'>{maxhit}</span>";
+// onOverlayDataUpdate
+    document.addEventListener("onOverlayDataUpdate", function (e) {
+        update(e.detail);
+        encounterHeartbeat();
+        trackerState.dataStore = e.detail;
+    });
+    window.addEventListener("message", function (e) {
+        if (e.data.type === "onOverlayDataUpdate") {
+            update(e.data.detail);
+            encounterHeartbeat();
+            trackerState.dataStore = e.data.detail;
+        }
+    });
+
+    $(document).trigger($.Event('initComplete'));
 
     function graphRendering(table) {
         $("tr:eq(0) > td.graphCell", table)
@@ -47,25 +64,6 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
                     });
             });
     }
-
-// onOverlayDataUpdate
-    document.addEventListener("onOverlayDataUpdate", function (e) {
-        update(e.detail);
-        encounterHeartbeat();
-        trackerState.dataStore = e.detail;
-    });
-    window.addEventListener("message", function (e) {
-        if (e.data.type === "onOverlayDataUpdate") {
-            update(e.data.detail);
-            encounterHeartbeat();
-            trackerState.dataStore = e.data.detail;
-        }
-    });
-
-    $(document).trigger($.Event('initComplete'));
-
-
-
 
     function encounterHeartbeat() {
         var targetElement = $('#combatantTable'),
@@ -102,6 +100,11 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
         encounterHeartbeat();
 
         trackerState.activeView = $(element).attr('value');
+        updateTopScoreProp(trackerState.config[trackerState.activeView].topScoreProp);
+    }
+
+    function updateTopScoreProp(newProp) {
+        trackerState.activeTopScoreProp = newProp;
     }
 
     $('html').on('click', '#toggle *', function () {
@@ -114,7 +117,7 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
 
 // 表示要素の更新
     function update(data) {
-        updateEncounter(data);
+        updateEncounter(data, trackerState.encounterDefine);
         if (document.getElementById("combatantTableHeader") == null) {
             updateCombatantListHeader();
         }
@@ -122,20 +125,20 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
     }
 
 // エンカウント情報を更新する
-    function updateEncounter(data) {
+    function updateEncounter(data, encounterSummary) {
         // 要素取得
         var encounterElem = document.getElementById('encounter');
 
         // テキスト取得
         var elementText;
-        if (typeof encounterDefine === 'function') {
-            elementText = encounterDefine(data.Encounter);
+        if (typeof encounterSummary === 'function') {
+            elementText = encounterSummary(data.Encounter);
             if (typeof elementText !== 'string') {
-                console.log("updateEncounter: 'encounterDefine' is declared as function but not returns a value as string.");
+                console.log("updateEncounter: 'encounterSummary' is declared as function but not returns a value as string.");
                 return;
             }
-        } else if (typeof encounterDefine === 'string') {
-            elementText = parseActFormat(encounterDefine, data.Encounter);
+        } else if (typeof encounterSummary === 'string') {
+            elementText = parseActFormat(encounterSummary, data.Encounter);
         } else {
             console.log("updateEncounter: Could not update the encounter element due to invalid type.");
             return;
@@ -143,19 +146,20 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
 
         // テキスト設定
         if (!trackerState.useHTMLEncounterDefine) {
-            encounterElem.innerText = parseActFormat(encounterDefine, data.Encounter);
+            encounterElem.innerText = elementText;
         } else {
-            encounterElem.innerHTML = parseActFormat(encounterDefine, data.Encounter);
+            encounterElem.innerHTML = elementText;
         }
     }
 
 // ヘッダを更新する
     function updateCombatantListHeader() {
-        var table = document.getElementById('combatantTable');
-        var tableHeader = document.createElement("thead");
+        var table           = document.getElementById('combatantTable'),
+            tableHeader     = document.createElement("thead"),
+            headerRow       = tableHeader.insertRow(),
+            headerConfig    = trackerState.bodyDefine[trackerState.activeView].headerConfig;
+
         tableHeader.id = "combatantTableHeader";
-        var headerRow = tableHeader.insertRow();
-        var headerConfig = trackerState.bodyDefine[trackerState.activeView].headerConfig;
 
         for (var i = 0; i < headerConfig.length; i++) {
             var cell = document.createElement("th");
@@ -186,11 +190,13 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
         var output = {},
             sortObject = {},
             sortedValues = [],
-            combatantName, combatant, value;
+            combatantName, combatant;
 
         for (combatantName in data) {
-            combatant = data[combatantName];
-            sortObject[combatant[orderBy]] = combatantName;
+            if(data.hasOwnProperty(combatantName)) {
+                combatant = data[combatantName];
+                sortObject[combatant[orderBy]] = combatantName;
+            }
         }
 
         sortedValues = Object.keys(sortObject)
@@ -201,11 +207,6 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
         sortedValues.map(e => {
            output[sortObject[e]] = data[sortObject[e]];
         });
-        /*
-        for (value in sortedValues) {
-            combatantName = sortArray[value];
-            output[combatantName] = data[combatantName];
-        }*/
 
 //update data.sortCombatants
         return output;
@@ -214,13 +215,12 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
 // プレイヤーリストを更新する
     function updateCombatantList(data) {
         // 要素取得＆作成
-        var table = document.getElementById('combatantTable'),
-            oldTableBody = table.tBodies.namedItem('combatantTableBody'),
-            newTableBody = document.createElement("tbody"),
-            sortedCombatants = sortCombatants(data.Combatant, trackerState.config[trackerState.activeView].topScoreProp);
+        var table               = document.getElementById('combatantTable'),
+            oldTableBody        = table.tBodies.namedItem('combatantTableBody'),
+            newTableBody        = document.createElement("tbody"),
+            sortedCombatants    = sortCombatants(data.Combatant, trackerState.activeTopScoreProp); //trackerState.config[trackerState.activeView].topScoreProp);
 
         newTableBody.id = "combatantTableBody";
-
 
         // tbody の内容を作成
         var combatantIndex = 0;
