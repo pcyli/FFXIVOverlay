@@ -1,7 +1,5 @@
 define(['./config', 'jquery'], function (config, $) {
-    var topScore;             //dpsBarEffect.topdeeps
-
-    function scoreBarEffect(cell, combatant, index, type) {
+    function scoreBarEffect(cell, combatant, index, type, topScoreCombatant) {
         var tank = config.tank.classes,
             dps = config.dps.classes,
             heal = config.heal.classes,
@@ -21,12 +19,10 @@ define(['./config', 'jquery'], function (config, $) {
             jobClass = 'base';
         }
 
-        if (index == 0 || typeof topScore == 'undefined') {
-            topScore = combatant[topScoreProp];
-        }
-        score = combatant[topScoreProp];
-        percentScore = (parseInt(score)/ parseInt(topScore)*100) || 0;
+        var topScore = topScoreCombatant[topScoreProp];
 
+        score = combatant[topScoreProp];
+        percentScore = (parseInt(score)/ parseInt(topScore) * 100) || 0;
 
         tableRow = cell.parentNode;
         tableRow.style.background =  "-webkit-linear-gradient(left, " + jobClass.color+ " 0%," + jobClass.color + (percentScore-1) +"%,rgba(125,185,232,0) " + percentScore + "%)";
