@@ -1,5 +1,5 @@
-requirejs(['jquery', 'modules/views', 'modules/config' ],
-        //, 'testing'],
+requirejs(['jquery', 'modules/views', 'modules/config' //],
+        , 'testing'],
     function ($, views, config) {
 
 // var ActXiv = {
@@ -22,6 +22,8 @@ requirejs(['jquery', 'modules/views', 'modules/config' ],
         fadeOutTime: 25,
         fadeOutOpacity: 0.2,
         heartBeatWatcher: 0,
+        encounterTime: 6,
+        encounterWatcher: 0,
         encounterDefine: config.base.baselineText,
         useHTMLEncounterDefine: true
     };
@@ -95,12 +97,17 @@ requirejs(['jquery', 'modules/views', 'modules/config' ],
         targetElement.css('display') === 'block' || toggleChartVisibility('block');
 
         clearTimeout(trackerState.heartBeatWatcher);
+        clearTimeout(trackerState.encounterWatcher);
 
         trackerState.heartBeatWatcher = setTimeout(function () {
             targetElement.fadeOut('slow', function () {
                 toggleChartVisibility('none');
             });
         }, trackerState.fadeOutTime * 1000);
+
+        trackerState.encounterWatcher = setTimeout(function () {
+           window.OverlayPluginApi.endEncounter();
+        }, trackerState.encounterTime * 1000);
 
         function toggleChartVisibility(displayType) {
             var opacity;
