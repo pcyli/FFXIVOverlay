@@ -1,5 +1,5 @@
-requirejs(['jquery', 'modules/views', 'modules/config' //],
-        , 'testing'],
+requirejs(['jquery', 'modules/views', 'modules/config' ],
+        //, 'testing'],
     function ($, views, config) {
 
 // var ActXiv = {
@@ -16,6 +16,7 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
         dataStore: {},
         activeView: config.base.defaultView,
         activeTopScoreProp: config[config.base.defaultView].topScoreProp,
+        sortDescending: true,
         bodyDefine: views,
         config: config,
         fadeOutTime: 25,
@@ -31,12 +32,34 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
         encounterHeartbeat();
         trackerState.dataStore = e.detail;
     });
+
     window.addEventListener("message", function (e) {
         if (e.data.type === "onOverlayDataUpdate") {
             update(e.data.detail);
             encounterHeartbeat();
             trackerState.dataStore = e.data.detail;
         }
+    });
+    $(document).on('click', 'th', function (e) {
+        var newSortVariable = e.target.getAttribute('act_variable');
+
+        if (newSortVariable === trackerState.activeTopScoreProp) {
+            trackerState.sortDescending = !trackerState.sortDescending;
+        } else {
+            updateTopScoreProp(e.target.getAttribute('act_variable'));
+            $(document).find('th.active').removeClass('active');
+            $(e.target).addClass('active');
+        }
+        encounterHeartbeat();
+        update(trackerState.dataStore);
+    });
+
+    $('html').on('click', '#toggle *', function () {
+        var element = this;
+
+        toggleActiveButton(element);
+        updateCombatantListHeader();
+        updateCombatantList(trackerState.dataStore);
     });
 
     $(document).trigger($.Event('initComplete'));
@@ -107,14 +130,6 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
         trackerState.activeTopScoreProp = newProp;
     }
 
-    $('html').on('click', '#toggle *', function () {
-        var element = this;
-
-        toggleActiveButton(element);
-        updateCombatantListHeader();
-        updateCombatantList(trackerState.dataStore);
-    });
-
 // 表示要素の更新
     function update(data) {
         updateEncounter(data, trackerState.encounterDefine);
@@ -163,20 +178,27 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
 
         for (var i = 0; i < headerConfig.length; i++) {
             var cell = document.createElement("th");
-            // テキスト設定
+
             if (typeof headerConfig[i].text !== 'undefined') {
                 cell.innerText = headerConfig[i].text;
+                cell.setAttribute('act_variable', headerConfig[i].act_variable);
             } else if (typeof headerConfig[i].html !== 'undefined') {
                 cell.innerHTML = headerConfig[i].html;
             }
-            // 幅設定
+            
+            if (trackerState.activeTopScoreProp === headerConfig[i].act_variable) {
+                cell.setAttribute(
+                    'class',
+                    cell.getAttribute('class') + ' active');
+            }
+
             cell.style.width = headerConfig[i].width;
             cell.style.maxWidth = headerConfig[i].width;
-            // 横結合数設定
+
             if (typeof headerConfig[i].span !== 'undefined') {
                 cell.colSpan = headerConfig[i].span;
             }
-            // 行揃え設定
+
             if (typeof headerConfig[i].align !== 'undefined') {
                 cell.style["textAlign"] = headerConfig[i].align;
             }
@@ -186,30 +208,51 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
         table.tHead = tableHeader;
     }
 
-    function sortCombatants(data, orderBy) {
-        var output = {},
+    function sortCombatants(data, orderBy, sortDescending) {
+        var sortedCombatants = {},
             sortObject = {},
             sortedValues = [],
-            combatantName, combatant;
+            sortedCombatantsOrder = [],
+            combatantName, combatant, combatantValue;
 
         for (combatantName in data) {
             if(data.hasOwnProperty(combatantName)) {
                 combatant = data[combatantName];
-                sortObject[combatant[orderBy]] = combatantName;
+                combatantValue = combatant[orderBy];
+                while (typeof sortObject[combatantValue] !== 'undefined') {
+                    combatantValue = parseFloat(combatantValue) - 1;
+                }
+                sortObject[combatantValue] = combatantName;
             }
         }
 
-        sortedValues = Object.keys(sortObject)
-            .sort(function (a, b) {
-                return parseInt(b) - parseInt(a);
-            });
+        if (sortDescending) {
+            sortedValues = Object.keys(sortObject)
+                .sort(function (a, b) {
+                    if ($.isNumeric(parseFloat(a)) && $.isNumeric(parseFloat(b))) {
+                        return parseFloat(b) - parseFloat(a);
+                    }
+                    return b > a ? 1 : -1;
+                });
+        } else {
+            sortedValues = Object.keys(sortObject)
+                .sort(function (a, b) {
+                    if ($.isNumeric(parseFloat(a)) && $.isNumeric(parseFloat(b))) {
+                        return parseFloat(a) - parseFloat(b);
+                    }
+                    return a > b ? 1 : -1;
+                });
+        }
 
         sortedValues.map(e => {
-           output[sortObject[e]] = data[sortObject[e]];
+            sortedCombatants[sortObject[e]] = data[sortObject[e]];
+            sortedCombatantsOrder.push(sortObject[e]);
         });
 
-//update data.sortCombatants
-        return output;
+        return {
+            combatants: sortedCombatants,
+            order: sortedCombatantsOrder
+        };
     }
 
 // プレイヤーリストを更新する
@@ -218,9 +261,21 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
         var table               = document.getElementById('combatantTable'),
             oldTableBody        = table.tBodies.namedItem('combatantTableBody'),
             newTableBody        = document.createElement("tbody"),
-            sortedCombatants    = sortCombatants(data.Combatant, trackerState.activeTopScoreProp); //trackerState.config[trackerState.activeView].topScoreProp);
+            sortedDataset       = sortCombatants(
+                                    data.Combatant,
+                                    trackerState.activeTopScoreProp,
+                                    trackerState.sortDescending
+                                  ),
+            sortedCombatants    = sortedDataset.combatants;
 
         newTableBody.id = "combatantTableBody";
+
+        var maxACTSortCombatants = sortCombatants(
+                data.Combatant,
+                trackerState.config[trackerState.activeView].topScoreProp,
+                true
+            ),
+            maxACTSortCombatant = maxACTSortCombatants.combatants[maxACTSortCombatants.order[0]];
 
         // tbody の内容を作成
         var combatantIndex = 0;
@@ -290,7 +345,13 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
 
                 // エフェクト実行
                 if (typeof bodyDefinition[i].effect === 'function') {
-                    bodyDefinition[i].effect(cell, combatant, combatantIndex, trackerState.activeView);
+                    bodyDefinition[i].effect(
+                        cell,
+                        combatant,
+                        combatantIndex,
+                        trackerState.activeView,
+                        maxACTSortCombatant
+                    );
                 }
             }
             combatantIndex++;

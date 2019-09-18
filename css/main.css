@@ -37,6 +37,10 @@ html {
     color: white;
 }
 
+#combatantTableHeader th.active {
+    color: #ff6d6b;
+}
+
 #combatantTableBody * {
     color: #cccccc;
     text-shadow: -1px 0 3px #4596ba, 0 1px 3px #4596ba, 1px 0 3px #4596ba, 0 -1px 3px #4596ba;
