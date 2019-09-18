@@ -1,5 +1,5 @@
-requirejs(['jquery', 'modules/views', 'modules/config' ],
-        //, 'testing'],
+requirejs(['jquery', 'modules/views', 'modules/config' //],
+        , 'testing'],
     function ($, views, config) {
 
 // var ActXiv = {
@@ -92,7 +92,7 @@ requirejs(['jquery', 'modules/views', 'modules/config' ],
         var targetElement = $('#combatantTable'),
         otherElements = $('#toggle, #encounter');
 
-        targetElement.css('display') === 'block' || toggleChartVisibility('block');
+        targetElement.css('display') === 'table' || toggleChartVisibility('table');
 
         clearTimeout(trackerState.heartBeatWatcher);
 
@@ -105,7 +105,7 @@ requirejs(['jquery', 'modules/views', 'modules/config' ],
         function toggleChartVisibility(displayType) {
             var opacity;
 
-            if (displayType === 'block') {
+            if (displayType === 'table') {
                 opacity = 1;
             } else {
                 opacity = trackerState.fadeOutOpacity;

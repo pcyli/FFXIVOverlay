@@ -21,5 +21,9 @@ define(['jquery'], function ($) {
         testModule.start();
     });
 
+    $(document).on('stopTest', function () {
+        testModule.end();
+    });
+
    return testModule;
 });
