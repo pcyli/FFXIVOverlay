@@ -16,7 +16,7 @@ define(['./config', 'jquery'], function (config, $) {
         } else if (heal.indexOf(job) > -1) {
             jobClass = config.heal;
         } else {
-            jobClass = 'base';
+            jobClass = config.base;
         }
 
         var topScore = topScoreCombatant[topScoreProp];

@@ -96,7 +96,7 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
             otherElements = $('#toggle, #encounter'),
             encounterFactor = 1;
 
-        targetElement.css('display') === 'block' || toggleChartVisibility('block');
+        targetElement.css('display') === 'table' || toggleChartVisibility('table');
 
         clearTimeout(trackerState.heartBeatWatcher);
         clearTimeout(trackerState.encounterWatcher);
@@ -121,7 +121,7 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
         function toggleChartVisibility(displayType) {
             var opacity;
 
-            if (displayType === 'block') {
+            if (displayType === 'table') {
                 opacity = 1;
             } else {
                 opacity = trackerState.fadeOutOpacity;
