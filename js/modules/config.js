@@ -19,5 +19,8 @@ define({
         color: 'rgba(128,0,255,0.5)',
         defaultView: 'dps',
         baselineText: "Time:<span class='enc'>{duration}</span> &nbsp;&nbsp;&nbsp;Total DPS:<span class='enc'>{dps}</span> &nbsp;&nbsp;&nbsp;Best Hit:<span class='enc'>{maxhit}</span>"
-    }
+    },
+    longEncountersTitle : [
+
+    ]
 });

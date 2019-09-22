@@ -31,17 +31,18 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
 // onOverlayDataUpdate
     document.addEventListener("onOverlayDataUpdate", function (e) {
         update(e.detail);
-        encounterHeartbeat();
+        encounterHeartbeat(e.detail);
         trackerState.dataStore = e.detail;
     });
 
     window.addEventListener("message", function (e) {
         if (e.data.type === "onOverlayDataUpdate") {
             update(e.data.detail);
-            encounterHeartbeat();
+            encounterHeartbeat(e.data.detail);
             trackerState.dataStore = e.data.detail;
         }
     });
+
     $(document).on('click', 'th', function (e) {
         var newSortVariable = e.target.getAttribute('act_variable');
 
@@ -52,7 +53,7 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
             $(document).find('th.active').removeClass('active');
             $(e.target).addClass('active');
         }
-        encounterHeartbeat();
+        encounterHeartbeat(trackerState.dataStore);
         update(trackerState.dataStore);
     });
 
@@ -90,14 +91,22 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
             });
     }
 
-    function encounterHeartbeat() {
+    function encounterHeartbeat(encounterData) {
         var targetElement = $('#combatantTable'),
-        otherElements = $('#toggle, #encounter');
+            otherElements = $('#toggle, #encounter'),
+            encounterFactor = 1;
 
         targetElement.css('display') === 'block' || toggleChartVisibility('block');
 
         clearTimeout(trackerState.heartBeatWatcher);
         clearTimeout(trackerState.encounterWatcher);
+
+        if (
+            encounterData.Encounter.CurrentZoneName.indexOf('Savage') > 0 ||
+            trackerState.config.longEncountersTitle.indexOf(encounterData.Encounter.title) > 0
+            )  {
+            encounterFactor = 10;
+        }
 
         trackerState.heartBeatWatcher = setTimeout(function () {
             targetElement.fadeOut('slow', function () {
@@ -107,7 +116,7 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
 
         trackerState.encounterWatcher = setTimeout(function () {
            window.OverlayPluginApi.endEncounter();
-        }, trackerState.encounterTime * 1000);
+        }, trackerState.encounterTime * 1000 * encounterFactor);
 
         function toggleChartVisibility(displayType) {
             var opacity;
@@ -127,7 +136,7 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
         $('.active').removeClass('active');
         $(element).addClass('active');
 
-        encounterHeartbeat();
+        encounterHeartbeat(trackerState.dataStore);
 
         trackerState.activeView = $(element).attr('value');
         updateTopScoreProp(trackerState.config[trackerState.activeView].topScoreProp);
@@ -409,4 +418,4 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
 
         return result;
     }
-});
+    });
