@@ -1,5 +1,5 @@
-requirejs(['jquery', 'modules/views', 'modules/config' //],
-        , 'testing'],
+requirejs(['jquery', 'modules/views', 'modules/config' ],
+        //, 'testing'],
     function ($, views, config) {
 
 // var ActXiv = {
@@ -102,7 +102,7 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
         clearTimeout(trackerState.encounterWatcher);
 
         if (
-            encounterData.Encounter.CurrentZoneName.indexOf('Savage') > 0 ||
+            (encounterData && encounterData.Encounter.CurrentZoneName.indexOf('Savage') > 0) ||
             trackerState.config.longEncountersTitle.indexOf(encounterData.Encounter.title) > 0
             )  {
             encounterFactor = 10;
@@ -114,9 +114,11 @@ requirejs(['jquery', 'modules/views', 'modules/config' //],
             });
         }, trackerState.fadeOutTime * 1000);
 
-        trackerState.encounterWatcher = setTimeout(function () {
-           window.OverlayPluginApi.endEncounter();
-        }, trackerState.encounterTime * 1000 * encounterFactor);
+        if (window.OverlayPluginApi && window.OverlayPluginApi.endEncounter) {
+            trackerState.encounterWatcher = setTimeout(function () {
+                window.OverlayPluginApi.endEncounter();
+            }, trackerState.encounterTime * 1000 * encounterFactor);
+        }
 
         function toggleChartVisibility(displayType) {
             var opacity;
