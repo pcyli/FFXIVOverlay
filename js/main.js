@@ -1,4 +1,5 @@
-requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
+requirejs(['jquery', 'modules/views', 'modules/config' //],
+        , 'testing'],
     function ($, views, config) {
 
 // var ActXiv = {
@@ -13,16 +14,58 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
 
     var trackerState = {
         dataStore: {},
-        activeView: 'dps',
+        activeView: config.base.defaultView,
+        activeTopScoreProp: config[config.base.defaultView].topScoreProp,
+        sortDescending: true,
         bodyDefine: views,
         config: config,
         fadeOutTime: 25,
         fadeOutOpacity: 0.2,
         heartBeatWatcher: 0,
+        encounterTime: 6,
+        encounterWatcher: 0,
+        encounterDefine: config.base.baselineText,
         useHTMLEncounterDefine: true
     };
 
-    var encounterDefine = "Time:<span class='enc'>{duration}</span> &nbsp;&nbsp;&nbsp;Total DPS:<span class='enc'>{dps}</span> &nbsp;&nbsp;&nbsp;Best Hit:<span class='enc'>{maxhit}</span>";
+// onOverlayDataUpdate
+    document.addEventListener("onOverlayDataUpdate", function (e) {
+        update(e.detail);
+        encounterHeartbeat(e.detail);
+        trackerState.dataStore = e.detail;
+    });
+
+    window.addEventListener("message", function (e) {
+        if (e.data.type === "onOverlayDataUpdate") {
+            update(e.data.detail);
+            encounterHeartbeat(e.data.detail);
+            trackerState.dataStore = e.data.detail;
+        }
+    });
+
+    $(document).on('click', 'th', function (e) {
+        var newSortVariable = e.target.getAttribute('act_variable');
+
+        if (newSortVariable === trackerState.activeTopScoreProp) {
+            trackerState.sortDescending = !trackerState.sortDescending;
+        } else {
+            updateTopScoreProp(e.target.getAttribute('act_variable'));
+            $(document).find('th.active').removeClass('active');
+            $(e.target).addClass('active');
+        }
+        encounterHeartbeat(trackerState.dataStore);
+        update(trackerState.dataStore);
+    });
+
+    $('html').on('click', '#toggle *', function () {
+        var element = this;
+
+        toggleActiveButton(element);
+        updateCombatantListHeader();
+        updateCombatantList(trackerState.dataStore);
+    });
+
+    $(document).trigger($.Event('initComplete'));
 
     function graphRendering(table) {
         $("tr:eq(0) > td.graphCell", table)
@@ -48,32 +91,22 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
             });
     }
 
-// onOverlayDataUpdate
-    document.addEventListener("onOverlayDataUpdate", function (e) {
-        update(e.detail);
-        encounterHeartbeat();
-        trackerState.dataStore = e.detail;
-    });
-    window.addEventListener("message", function (e) {
-        if (e.data.type === "onOverlayDataUpdate") {
-            update(e.data.detail);
-            encounterHeartbeat();
-            trackerState.dataStore = e.data.detail;
-        }
-    });
-
-    $(document).trigger($.Event('initComplete'));
-
-
-
-
-    function encounterHeartbeat() {
+    function encounterHeartbeat(encounterData) {
         var targetElement = $('#combatantTable'),
-        otherElements = $('#toggle, #encounter');
+            otherElements = $('#toggle, #encounter'),
+            encounterFactor = 1;
 
-        targetElement.css('display') === 'block' || toggleChartVisibility('block');
+        targetElement.css('display') === 'table' || toggleChartVisibility('table');
 
         clearTimeout(trackerState.heartBeatWatcher);
+        clearTimeout(trackerState.encounterWatcher);
+
+        if (
+            encounterData.Encounter.CurrentZoneName.indexOf('Savage') > 0 ||
+            trackerState.config.longEncountersTitle.indexOf(encounterData.Encounter.title) > 0
+            )  {
+            encounterFactor = 10;
+        }
 
         trackerState.heartBeatWatcher = setTimeout(function () {
             targetElement.fadeOut('slow', function () {
@@ -81,10 +114,14 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
             });
         }, trackerState.fadeOutTime * 1000);
 
+        trackerState.encounterWatcher = setTimeout(function () {
+           window.OverlayPluginApi.endEncounter();
+        }, trackerState.encounterTime * 1000 * encounterFactor);
+
         function toggleChartVisibility(displayType) {
             var opacity;
 
-            if (displayType === 'block') {
+            if (displayType === 'table') {
                 opacity = 1;
             } else {
                 opacity = trackerState.fadeOutOpacity;
@@ -99,22 +136,19 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
         $('.active').removeClass('active');
         $(element).addClass('active');
 
-        encounterHeartbeat();
+        encounterHeartbeat(trackerState.dataStore);
 
         trackerState.activeView = $(element).attr('value');
+        updateTopScoreProp(trackerState.config[trackerState.activeView].topScoreProp);
     }
 
-    $('html').on('click', '#toggle *', function () {
-        var element = this;
-
-        toggleActiveButton(element);
-        updateCombatantListHeader();
-        updateCombatantList(trackerState.dataStore);
-    });
+    function updateTopScoreProp(newProp) {
+        trackerState.activeTopScoreProp = newProp;
+    }
 
 // 表示要素の更新
     function update(data) {
-        updateEncounter(data);
+        updateEncounter(data, trackerState.encounterDefine);
         if (document.getElementById("combatantTableHeader") == null) {
             updateCombatantListHeader();
         }
@@ -122,20 +156,20 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
     }
 
 // エンカウント情報を更新する
-    function updateEncounter(data) {
+    function updateEncounter(data, encounterSummary) {
         // 要素取得
         var encounterElem = document.getElementById('encounter');
 
         // テキスト取得
         var elementText;
-        if (typeof encounterDefine === 'function') {
-            elementText = encounterDefine(data.Encounter);
+        if (typeof encounterSummary === 'function') {
+            elementText = encounterSummary(data.Encounter);
             if (typeof elementText !== 'string') {
-                console.log("updateEncounter: 'encounterDefine' is declared as function but not returns a value as string.");
+                console.log("updateEncounter: 'encounterSummary' is declared as function but not returns a value as string.");
                 return;
             }
-        } else if (typeof encounterDefine === 'string') {
-            elementText = parseActFormat(encounterDefine, data.Encounter);
+        } else if (typeof encounterSummary === 'string') {
+            elementText = parseActFormat(encounterSummary, data.Encounter);
         } else {
             console.log("updateEncounter: Could not update the encounter element due to invalid type.");
             return;
@@ -143,36 +177,44 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
 
         // テキスト設定
         if (!trackerState.useHTMLEncounterDefine) {
-            encounterElem.innerText = parseActFormat(encounterDefine, data.Encounter);
+            encounterElem.innerText = elementText;
         } else {
-            encounterElem.innerHTML = parseActFormat(encounterDefine, data.Encounter);
+            encounterElem.innerHTML = elementText;
         }
     }
 
 // ヘッダを更新する
     function updateCombatantListHeader() {
-        var table = document.getElementById('combatantTable');
-        var tableHeader = document.createElement("thead");
+        var table           = document.getElementById('combatantTable'),
+            tableHeader     = document.createElement("thead"),
+            headerRow       = tableHeader.insertRow(),
+            headerConfig    = trackerState.bodyDefine[trackerState.activeView].headerConfig;
+
         tableHeader.id = "combatantTableHeader";
-        var headerRow = tableHeader.insertRow();
-        var headerConfig = trackerState.bodyDefine[trackerState.activeView].headerConfig;
 
         for (var i = 0; i < headerConfig.length; i++) {
             var cell = document.createElement("th");
-            // テキスト設定
+
             if (typeof headerConfig[i].text !== 'undefined') {
                 cell.innerText = headerConfig[i].text;
+                cell.setAttribute('act_variable', headerConfig[i].act_variable);
             } else if (typeof headerConfig[i].html !== 'undefined') {
                 cell.innerHTML = headerConfig[i].html;
             }
-            // 幅設定
+            
+            if (trackerState.activeTopScoreProp === headerConfig[i].act_variable) {
+                cell.setAttribute(
+                    'class',
+                    cell.getAttribute('class') + ' active');
+            }
+
             cell.style.width = headerConfig[i].width;
             cell.style.maxWidth = headerConfig[i].width;
-            // 横結合数設定
+
             if (typeof headerConfig[i].span !== 'undefined') {
                 cell.colSpan = headerConfig[i].span;
             }
-            // 行揃え設定
+
             if (typeof headerConfig[i].align !== 'undefined') {
                 cell.style["textAlign"] = headerConfig[i].align;
             }
@@ -182,45 +224,74 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
         table.tHead = tableHeader;
     }
 
-    function sortCombatants(data, orderBy) {
-        var output = {},
+    function sortCombatants(data, orderBy, sortDescending) {
+        var sortedCombatants = {},
             sortObject = {},
             sortedValues = [],
-            combatantName, combatant, value;
+            sortedCombatantsOrder = [],
+            combatantName, combatant, combatantValue;
 
         for (combatantName in data) {
-            combatant = data[combatantName];
-            sortObject[combatant[orderBy]] = combatantName;
+            if(data.hasOwnProperty(combatantName)) {
+                combatant = data[combatantName];
+                combatantValue = combatant[orderBy];
+                while (typeof sortObject[combatantValue] !== 'undefined') {
+                    combatantValue = parseFloat(combatantValue) - 1;
+                }
+                sortObject[combatantValue] = combatantName;
+            }
         }
 
-        sortedValues = Object.keys(sortObject)
-            .sort(function (a, b) {
-                return parseInt(b) - parseInt(a);
-            });
+        if (sortDescending) {
+            sortedValues = Object.keys(sortObject)
+                .sort(function (a, b) {
+                    if ($.isNumeric(parseFloat(a)) && $.isNumeric(parseFloat(b))) {
+                        return parseFloat(b) - parseFloat(a);
+                    }
+                    return b > a ? 1 : -1;
+                });
+        } else {
+            sortedValues = Object.keys(sortObject)
+                .sort(function (a, b) {
+                    if ($.isNumeric(parseFloat(a)) && $.isNumeric(parseFloat(b))) {
+                        return parseFloat(a) - parseFloat(b);
+                    }
+                    return a > b ? 1 : -1;
+                });
+        }
 
         sortedValues.map(e => {
-           output[sortObject[e]] = data[sortObject[e]];
+            sortedCombatants[sortObject[e]] = data[sortObject[e]];
+            sortedCombatantsOrder.push(sortObject[e]);
         });
-        /*
-        for (value in sortedValues) {
-            combatantName = sortArray[value];
-            output[combatantName] = data[combatantName];
-        }*/
 
-//update data.sortCombatants
-        return output;
+        return {
+            combatants: sortedCombatants,
+            order: sortedCombatantsOrder
+        };
     }
 
 // プレイヤーリストを更新する
     function updateCombatantList(data) {
         // 要素取得＆作成
-        var table = document.getElementById('combatantTable'),
-            oldTableBody = table.tBodies.namedItem('combatantTableBody'),
-            newTableBody = document.createElement("tbody"),
-            sortedCombatants = sortCombatants(data.Combatant, trackerState.config[trackerState.activeView].topScoreProp);
+        var table               = document.getElementById('combatantTable'),
+            oldTableBody        = table.tBodies.namedItem('combatantTableBody'),
+            newTableBody        = document.createElement("tbody"),
+            sortedDataset       = sortCombatants(
+                                    data.Combatant,
+                                    trackerState.activeTopScoreProp,
+                                    trackerState.sortDescending
+                                  ),
+            sortedCombatants    = sortedDataset.combatants;
 
         newTableBody.id = "combatantTableBody";
 
+        var maxACTSortCombatants = sortCombatants(
+                data.Combatant,
+                trackerState.config[trackerState.activeView].topScoreProp,
+                true
+            ),
+            maxACTSortCombatant = maxACTSortCombatants.combatants[maxACTSortCombatants.order[0]];
 
         // tbody の内容を作成
         var combatantIndex = 0;
@@ -290,7 +361,13 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
 
                 // エフェクト実行
                 if (typeof bodyDefinition[i].effect === 'function') {
-                    bodyDefinition[i].effect(cell, combatant, combatantIndex, trackerState.activeView);
+                    bodyDefinition[i].effect(
+                        cell,
+                        combatant,
+                        combatantIndex,
+                        trackerState.activeView,
+                        maxACTSortCombatant
+                    );
                 }
             }
             combatantIndex++;
@@ -341,4 +418,4 @@ requirejs(['jquery', 'modules/views', 'modules/config'],//, 'testing'],
 
         return result;
     }
-});
+    });

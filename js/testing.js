@@ -15,9 +15,14 @@ define(['jquery'], function ($) {
        }
    };
 
+    $('body').css('background-color', 'black');
 
     $(document).on('initComplete', function () {
         testModule.start();
+    });
+
+    $(document).on('stopTest', function () {
+        testModule.end();
     });
 
    return testModule;
