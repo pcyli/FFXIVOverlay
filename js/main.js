@@ -1,6 +1,6 @@
-requirejs(['jquery', 'modules/views', 'modules/config' ],
-        //, 'testing'],
-    function ($, views, config) {
+requirejs(['jquery', 'modules/views', 'modules/config', 'modules/fadeOverlay', 'modules/encounterSplit' ],
+       // , 'testing'],
+    function ($, views, config, fadeOverlay, encounterSplit) {
 
 // var ActXiv = {
 //	"Encounter": {...},
@@ -19,53 +19,9 @@ requirejs(['jquery', 'modules/views', 'modules/config' ],
         sortDescending: true,
         bodyDefine: views,
         config: config,
-        fadeOutTime: 25,
-        fadeOutOpacity: 0.2,
-        heartBeatWatcher: 0,
-        encounterTime: 6,
-        encounterWatcher: 0,
         encounterDefine: config.base.baselineText,
         useHTMLEncounterDefine: true
     };
-
-// onOverlayDataUpdate
-    document.addEventListener("onOverlayDataUpdate", function (e) {
-        update(e.detail);
-        encounterHeartbeat(e.detail);
-        trackerState.dataStore = e.detail;
-    });
-
-    window.addEventListener("message", function (e) {
-        if (e.data.type === "onOverlayDataUpdate") {
-            update(e.data.detail);
-            encounterHeartbeat(e.data.detail);
-            trackerState.dataStore = e.data.detail;
-        }
-    });
-
-    $(document).on('click', 'th', function (e) {
-        var newSortVariable = e.target.getAttribute('act_variable');
-
-        if (newSortVariable === trackerState.activeTopScoreProp) {
-            trackerState.sortDescending = !trackerState.sortDescending;
-        } else {
-            updateTopScoreProp(e.target.getAttribute('act_variable'));
-            $(document).find('th.active').removeClass('active');
-            $(e.target).addClass('active');
-        }
-        encounterHeartbeat(trackerState.dataStore);
-        update(trackerState.dataStore);
-    });
-
-    $('html').on('click', '#toggle *', function () {
-        var element = this;
-
-        toggleActiveButton(element);
-        updateCombatantListHeader();
-        updateCombatantList(trackerState.dataStore);
-    });
-
-    $(document).trigger($.Event('initComplete'));
 
     function graphRendering(table) {
         $("tr:eq(0) > td.graphCell", table)
@@ -92,46 +48,7 @@ requirejs(['jquery', 'modules/views', 'modules/config' ],
     }
 
     function encounterHeartbeat(encounterData) {
-        var targetElement = $('#combatantTable'),
-            otherElements = $('#toggle, #encounter'),
-            encounterFactor = 1;
-
-        targetElement.css('display') === 'table' || toggleChartVisibility('table');
-
-        clearTimeout(trackerState.heartBeatWatcher);
-        clearTimeout(trackerState.encounterWatcher);
-
-        if (
-            (encounterData && encounterData.Encounter.CurrentZoneName.indexOf('Savage') > 0) ||
-            trackerState.config.longEncountersTitle.indexOf(encounterData.Encounter.title) > 0
-            )  {
-            encounterFactor = 10;
-        }
-
-        trackerState.heartBeatWatcher = setTimeout(function () {
-            targetElement.fadeOut('slow', function () {
-                toggleChartVisibility('none');
-            });
-        }, trackerState.fadeOutTime * 1000);
-
-        if (window.OverlayPluginApi && window.OverlayPluginApi.endEncounter) {
-            trackerState.encounterWatcher = setTimeout(function () {
-                window.OverlayPluginApi.endEncounter();
-            }, trackerState.encounterTime * 1000 * encounterFactor);
-        }
-
-        function toggleChartVisibility(displayType) {
-            var opacity;
-
-            if (displayType === 'table') {
-                opacity = 1;
-            } else {
-                opacity = trackerState.fadeOutOpacity;
-            }
-
-            targetElement.css('display', displayType);
-            otherElements.css('opacity', opacity);
-        }
+        $(document).trigger($.Event('heartbeat', encounterData));
     }
 
     function toggleActiveButton(element) {
@@ -262,7 +179,7 @@ requirejs(['jquery', 'modules/views', 'modules/config' ],
                 });
         }
 
-        sortedValues.map(e => {
+        sortedValues.map(function (e) {
             sortedCombatants[sortObject[e]] = data[sortObject[e]];
             sortedCombatantsOrder.push(sortObject[e]);
         });
@@ -376,8 +293,7 @@ requirejs(['jquery', 'modules/views', 'modules/config' ],
         }
 
         graphRendering(newTableBody);
-
-        // tbody が既に存在していたら置換、そうでないならテーブルに追加
+        
         if (oldTableBody != void(0)) {
             table.replaceChild(newTableBody, oldTableBody);
         }
@@ -386,7 +302,6 @@ requirejs(['jquery', 'modules/views', 'modules/config' ],
         }
     }
 
-// Miniparse フォーマット文字列を解析し、表示文字列を取得する
     function parseActFormat(str, dictionary) {
         var result = "";
 
@@ -420,4 +335,47 @@ requirejs(['jquery', 'modules/views', 'modules/config' ],
 
         return result;
     }
+
+        this.init = function () {
+
+            document.addEventListener("onOverlayDataUpdate", function (e) {
+                update(e.detail);
+                encounterHeartbeat(e.detail);
+                trackerState.dataStore = e.detail;
+            });
+
+            window.addEventListener("message", function (e) {
+                if (e.data.type === "onOverlayDataUpdate") {
+                    update(e.data.detail);
+                    encounterHeartbeat(e.data.detail);
+                    trackerState.dataStore = e.data.detail;
+                }
+            });
+
+            $(document).on('click', 'th', function (e) {
+                var newSortVariable = e.target.getAttribute('act_variable');
+
+                if (newSortVariable === trackerState.activeTopScoreProp) {
+                    trackerState.sortDescending = !trackerState.sortDescending;
+                } else {
+                    updateTopScoreProp(e.target.getAttribute('act_variable'));
+                    $(document).find('th.active').removeClass('active');
+                    $(e.target).addClass('active');
+                }
+                encounterHeartbeat(trackerState.dataStore);
+                update(trackerState.dataStore);
+            });
+
+            $('html').on('click', '#toggle span', function () {
+                var element = this;
+
+                toggleActiveButton(element);
+                updateCombatantListHeader();
+                updateCombatantList(trackerState.dataStore);
+            });
+
+            $(document).trigger($.Event('initComplete'));
+        };
+
+    this.init();
     });
