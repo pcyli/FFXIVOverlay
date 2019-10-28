@@ -1,6 +1,12 @@
-requirejs(['jquery', 'modules/views', 'modules/config', 'modules/fadeOverlay', 'modules/encounterSplit' ],
-       // , 'testing'],
-    function ($, views, config, fadeOverlay, encounterSplit) {
+requirejs([
+    'jquery'
+    ,'modules/views'
+    ,'modules/config'
+    ,'modules/fadeOverlay'
+    //,'modules/encounterSplit'
+    //, 'testing'
+    ],
+    function ($, views, config) {
 
 // var ActXiv = {
 //	"Encounter": {...},
