@@ -1,0 +1,21 @@
+* {
+  font-family: "Meiryo", sans-serif;
+  font-size: 11px;
+}
+html {
+  background-image: url(../../public/img/handle.png);
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  box-sizing: border-box;
+  height: 100%;
+  background-color: transparent;
+  overflow: hidden;
+  position: relative;
+}
+body,
+html {
+  margin: 0;
+  width: 100%;
+  position: relative;
+}
+/*# sourceMappingURL=App.css.map */

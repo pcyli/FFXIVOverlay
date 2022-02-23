@@ -1,7 +1,7 @@
-define(['jquery'], function ($) {
+export default function () {
     return false;
-    if (typeof OverlayPluginApi === "undefined" ||
-        typeof OverlayPluginApi.endEncounter === "undefined") {
+    if (typeof window.OverlayPluginApi === "undefined" ||
+        typeof window.OverlayPluginApi.endEncounter === "undefined") {
         return false;
     }
 
@@ -14,7 +14,13 @@ define(['jquery'], function ($) {
         ]
     };
 
-    function encounterSplit (encounterData, state) {
+    function encounterHeartbeat(encounterData) {
+        $(document).trigger($.Event('heartbeat', encounterData));
+    }
+
+    function encounterSplit (event) {
+        const { Encounter: encounterData } = event;
+
         state.encounterWatcher && clearTimeout(state.encounterWatcher);
 
         if (
@@ -27,21 +33,19 @@ define(['jquery'], function ($) {
         }
 
         state.encounterWatcher = setTimeout(function () {
-            OverlayPluginApi.endEncounter();
+            window.OverlayPluginApi.endEncounter();
             console.log('endEncounter:' + JSON.stringify(state));
             state.encounterWatcher = null;
         }, state.encounterTime * 1000 * state.encounterFactor);
     }
 
     function startListener () {
-        $(document).on('heartbeat.encounterSplit', function (event) {
-            encounterSplit(event.Encounter, state);
-        });
+        document.addEventListener("CombatData", encounterSplit);
         return state;
     }
 
     function stopListener () {
-        $(document).off('heartbeat.encounterSplit');
+        document.removeEventListener('CombatData', encounterSplit);
         return state;
     }
 
@@ -63,4 +67,4 @@ define(['jquery'], function ($) {
         setState: setState
     }
 
-});
+}

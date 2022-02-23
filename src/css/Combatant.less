@@ -1,0 +1,36 @@
+@import (reference) './CombatantTable';
+
+.combatantRow {
+  .grid-container();
+  .row-shading();
+
+  &.mc div {
+    color: #ffffff;
+    text-shadow: 1px 1px 0 #000000, -1px 0 2px #4eb84b, 0 1px 2px #4eb84b, 1px 0 2px #4eb84b, 0 -1px 2px #4eb84b;
+  }
+
+  div {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+
+    color: #cccccc;
+    text-shadow: -1px 0 3px #4596ba, 0 1px 3px #4596ba, 1px 0 3px #4596ba, 0 -1px 3px #4596ba;
+    font-weight: 300;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  &:nth-child(2n+1) {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  &:nth-child(2n) {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  img {
+    max-height: 1.5em;
+  }
+}

@@ -1,0 +1,33 @@
+.combatantRow {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  justify-content: stretch;
+  padding: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+  background-blend-mode: soft-light;
+}
+.combatantRow.mc div {
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #000000, -1px 0 2px #4eb84b, 0 1px 2px #4eb84b, 1px 0 2px #4eb84b, 0 -1px 2px #4eb84b;
+}
+.combatantRow div {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  color: #cccccc;
+  text-shadow: -1px 0 3px #4596ba, 0 1px 3px #4596ba, 1px 0 3px #4596ba, 0 -1px 3px #4596ba;
+  font-weight: 300;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.combatantRow:nth-child(2n+1) {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.combatantRow:nth-child(2n) {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+.combatantRow img {
+  max-height: 1.5em;
+}
+/*# sourceMappingURL=Combatant.css.map */

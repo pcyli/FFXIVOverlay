@@ -1,4 +1,4 @@
-define({
+let config = {
     petShading: ['YOU', "Limit Break", "Ifrit", "Titan", "Garuda", "Eos", "Selene", "emerald", "topaz", "Chocobo"],
     tank: {
         classes: ["Gla", "Pld", "Mrd", "War", "Drk", "Gnb"],
@@ -20,4 +20,6 @@ define({
         defaultView: 'dps',
         baselineText: "Time:<span class='enc'>{duration}</span> &nbsp;&nbsp;&nbsp;Total DPS:<span class='enc'>{dps}</span> &nbsp;&nbsp;&nbsp;Best Hit:<span class='enc'>{maxhit}</span>"
     }
-});
+};
+
+export default config;

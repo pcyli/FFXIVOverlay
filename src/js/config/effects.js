@@ -1,4 +1,6 @@
-define(['./config', 'jquery'], function (config, $) {
+import config from './config';
+
+let effects = (function ($) {
     function scoreBarEffect(cell, combatant, index, type, topScoreCombatant) {
         var tank = config.tank.classes,
             dps = config.dps.classes,
@@ -43,7 +45,7 @@ define(['./config', 'jquery'], function (config, $) {
     function myCharacterEffect(cell, combatant, index) {
         var myname = "YOU";
 
-        if (myname == combatant["name"]) {
+        if (myname === combatant["name"]) {
             $(cell).parents("tr").addClass("mc");
         }
     }
@@ -67,5 +69,7 @@ define(['./config', 'jquery'], function (config, $) {
         jobColorEffect: jobColorEffect,
         insertCommaEffect: insertCommaEffect,
         graphEffect: graphEffect
-    };
-});
+    }
+})();
+
+export default effects;

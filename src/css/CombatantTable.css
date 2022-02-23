@@ -1,0 +1,88 @@
+.text-shading {
+  color: #DED7BE;
+  text-shadow: -1px 0 2px #795516, 0 1px 2px #795516, 1px 0 2px #795516, 0 -1px 2px #795516;
+  font-weight: 300;
+  white-space: nowrap;
+}
+.row-shading {
+  padding: 0px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+  background-blend-mode: soft-light;
+}
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  justify-content: stretch;
+}
+[class^=size] {
+  grid-column-start: auto;
+}
+.size0 {
+  grid-column-end: span 1;
+}
+.size1 {
+  grid-column-end: span 1;
+}
+.size2 {
+  grid-column-end: span 2;
+}
+.size3 {
+  grid-column-end: span 3;
+}
+.size4 {
+  grid-column-end: span 4;
+}
+.size5 {
+  grid-column-end: span 5;
+}
+#combatantTable {
+  width: 100%;
+  bottom: 35px;
+}
+#combatantTable .header {
+  cursor: pointer;
+  color: #DED7BE;
+  text-shadow: -1px 0 2px #795516, 0 1px 2px #795516, 1px 0 2px #795516, 0 -1px 2px #795516;
+  font-weight: 300;
+  white-space: nowrap;
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  justify-content: stretch;
+}
+#combatantTable .header :hover {
+  text-shadow: 0 0 6px #008dbc;
+  color: white;
+}
+#combatantTable .header .active {
+  color: #ff6d6b;
+}
+#combatantTable .combatantRow {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  justify-content: stretch;
+  padding: 0px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+  background-blend-mode: soft-light;
+}
+#combatantTable .combatantRow div {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  color: #cccccc;
+  text-shadow: -1px 0 3px #4596ba, 0 1px 3px #4596ba, 1px 0 3px #4596ba, 0 -1px 3px #4596ba;
+  font-weight: 300;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+#combatantTable .combatantRow:nth-child(2n+1) {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+#combatantTable .combatantRow:nth-child(2n) {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+#combatantTableBody .mc * {
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #000000, -1px 0 2px #4eb84b, 0 1px 2px #4eb84b, 1px 0 2px #4eb84b, 0 -1px 2px #4eb84b;
+}
+/*# sourceMappingURL=CombatantTable.css.map */
