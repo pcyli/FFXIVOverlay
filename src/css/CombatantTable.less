@@ -1,0 +1,67 @@
+.text-shading {
+  color: #DED7BE;
+  text-shadow: -1px 0 2px #795516, 0 1px 2px #795516, 1px 0 2px #795516, 0 -1px 2px #795516;
+  font-weight: 300;
+  white-space: nowrap;
+}
+
+.row-shading {
+  padding: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+  background-blend-mode: soft-light;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  justify-content: stretch;
+}
+
+[class^=size] {
+  grid-column-start: auto;
+}
+
+.size0 {
+  grid-column-end: span 1;
+}
+
+.size1 {
+  grid-column-end: span 1;
+}
+
+.size2 {
+  grid-column-end: span 2;
+}
+
+.size3 {
+  grid-column-end: span 3;
+}
+
+.size4 {
+  grid-column-end: span 4;
+}
+
+.size5 {
+  grid-column-end: span 5;
+}
+
+#combatantTable {
+  width: 100%;
+  //position: absolute;
+  bottom: 35px;
+
+  .header {
+    cursor: pointer;
+    .text-shading();
+    .grid-container();
+
+    :hover {
+      text-shadow: 0 0 6px #008dbc;
+      color: white;
+    }
+
+    .active {
+      color: #ff6d6b;
+    }
+  }
+}

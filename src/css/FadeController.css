@@ -1,0 +1,10 @@
+.App.hidden #combatantTable {
+  opacity: 0;
+  transition: visibility 0s 2s, opacity 2s linear;
+}
+.App.hidden #encounter,
+.App.hidden #toggle {
+  opacity: 0.2;
+  transition: visibility 0s 2s, opacity 2s linear;
+}
+/*# sourceMappingURL=FadeController.css.map */

@@ -1,0 +1,19 @@
+@import (reference) './CombatantTable.less';
+
+#encounter {
+  margin-bottom: 0.5em;
+
+  .title {
+    &:extend(.text-shading);
+  }
+  .content {
+    padding-right: 1.5em;
+    color: #E2EBF5;
+    text-shadow: -1px 0 3px #217AA2, 0 1px 3px #217AA2, 1px 0 3px #217AA2, 0 -1px 3px #217AA2;
+    font-weight: 300;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
