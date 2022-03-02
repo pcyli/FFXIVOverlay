@@ -1,5 +1,5 @@
 export default function WebSocketController() {
-    let wsUrl = /[?&]OVERLAY_WS=([^&]+)/.exec(window.location.href);
+    let wsUrl = /[?&]HOST_PORT=([^&]+)/.exec(window.location.href);
     let ws = null;
     let queue = [];
     let rseqCounter = 0;
@@ -18,13 +18,13 @@ export default function WebSocketController() {
 
         function connectWs() {
             ws = new WebSocket(wsUrl[1]);
-
+            debugger;
             ws.addEventListener('error', (e) => {
                 console.error(e);
             });
 
             ws.addEventListener('open', () => {
-                console.log('Connected!');
+                console.log('Connected via WebSocket.');
 
                 let q = queue;
                 queue = null;
@@ -63,10 +63,11 @@ export default function WebSocketController() {
         connectWs();
     } else {
         sendMessage = (obj, cb) => {
-            if (queue)
+            if (queue) {
                 queue.push([obj, cb]);
-            else
+            } else {
                 window.OverlayPluginApi.callHandler(JSON.stringify(obj), cb);
+            }
         };
 
         function waitForApi() {
@@ -74,6 +75,8 @@ export default function WebSocketController() {
                 setTimeout(waitForApi, 300);
                 return;
             }
+
+            console.log('Connected via OverlayPluginApi.');
 
             let q = queue;
             queue = null;
