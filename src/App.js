@@ -27,7 +27,7 @@ function App() {
 
         const dataCtrl = new DataController({setEncounterData: setEncounterData});
         dataCtrl.init();
-    }, []);
+    }, [isTableHidden]);
 
     return (
         <div className={`App ${isTableHidden ? 'hidden' : 'active'}`}>
